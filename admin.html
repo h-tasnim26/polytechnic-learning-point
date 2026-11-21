@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - পলিটেকনিক লার্নিং Point</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="index.html" class="brand">
+      <div class="brand-logo">PLP</div>
+      <span>Admin কন্ট্রোল প্যানেল</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">🌐 লাইভ ওয়েবসাইট দেখুন</a>
+      <button class="nav-btn" style="background:#dc2626; color:#fff;" onclick="resetAllData()">রিসেট ডিফল্ট</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="sub-layout">
+      <!-- Course Edit Form -->
+      <div class="card-box">
+        <h2 style="margin-bottom:14px;">✏️ কোর্স এডিট ও নতুন কোর্স যোগ করুন</h2>
+        <form onsubmit="saveCourseForm(event)">
+          <input type="hidden" id="editIndex" value="-1">
+          <div class="form-group">
+            <label>কোর্সের শিরোনাম</label>
+            <input type="text" id="cTitle" required placeholder="যেমন: বেসিক ইলেকট্রনিক্স ও সার্কিট ডিজাইন">
+          </div>
+          <div class="form-group">
+            <label>ডিপার্টমেন্ট</label>
+            <input type="text" id="cDept" required placeholder="যেমন: Electronics Technology">
+          </div>
+          <div class="form-group">
+            <label>ইন্সট্রাক্টরের নাম</label>
+            <input type="text" id="cInstructor" required placeholder="ইঞ্জি. নাম">
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div class="form-group">
+              <label>কোর্সের ধরন</label>
+              <select id="cType">
+                <option value="free">ফ্রি (পাবলিক YouTube)</option>
+                <option value="paid">পেইড (সাবস্ক্রিপশন)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>কোর্স প্রাইস (টাকা)</label>
+              <input type="number" id="cPrice" value="0" required>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:2fr 1fr; gap:12px;">
+            <div class="form-group">
+              <label>লাইভ ক্লাস লিংক (Zoom / Google Meet)</label>
+              <input type="url" id="cLiveLink" placeholder="https://meet.google.com/...">
+            </div>
+            <div class="form-group">
+              <label>সার্টিফিকেট সুবিধা</label>
+              <select id="cCert">
+                <option value="true">হ্যাঁ (চালু)</option>
+                <option value="false">না (বন্ধ)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>রেকর্ডেড ভিডিও তালিকা (প্রতি লাইনে: <code>ক্লাসের নাম | YouTube Embed URL</code>)</label>
+            <textarea id="cLessons" rows="4" required placeholder="১. প্রথম ক্লাস | https://www.youtube.com/embed/VIDEO_ID"></textarea>
+          </div>
+          <button type="submit" class="btn btn-success">💾 সেভ ও পাবলিশ করুন</button>
+          <button type="button" class="btn btn-dark" onclick="clearForm()">নতুন ফর্ম</button>
+        </form>
+      </div>
+
+      <!-- Existing Courses List -->
+      <div class="card-box">
+        <h3 style="margin-bottom:12px;">📋 বিদ্যমান কোর্স তালিকা</h3>
+        <div id="adminCourseList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    const auth = JSON.parse(localStorage.getItem("plp_auth") || "null");
+    if (!auth || auth.role !== "admin") {
+      alert("শুধুমাত্র Admin এই পেজে প্রবেশ করতে পারবেন। হোমপেজ থেকে Admin লগইন করুন।");
+      window.location.href = "index.html";
+    }
+
+    let siteData = getSiteData();
+
+    function renderAdminList() {
+      const list = document.getElementById("adminCourseList");
+      list.innerHTML = "";
+      siteData.courses.forEach((c, idx) => {
+        list.innerHTML += `
+          <div style="border:1px solid #cbd5e1; padding:12px; border-radius:8px; margin-bottom:10px;">
+            <strong>${c.title}</strong>
+            <div style="font-size:0.82rem; color:#64748b; margin:4px 0 8px;">
+              ধরন: ${c.type.toUpperCase()} • প্রাইস: ৳${c.price} • ক্লাস: ${c.lessons.length}টি
+            </div>
+            <button class="btn btn-primary" style="padding:5px 12px; font-size:0.82rem;" onclick="loadCourseToEdit(${idx})">এডিট করুন</button>
+            <button class="btn" style="padding:5px 12px; font-size:0.82rem; background:#fee2e2; color:#b91c1c;" onclick="deleteCourse(${idx})">ডিলিট</button>
+          </div>
+        `;
+      });
+    }
+
+    function loadCourseToEdit(idx) {
+      const c = siteData.courses[idx];
+      document.getElementById("editIndex").value = idx;
+      document.getElementById("cTitle").value = c.title;
+      document.getElementById("cDept").value = c.department;
+      document.getElementById("cInstructor").value = c.instructor;
+      document.getElementById("cType").value = c.type;
+      document.getElementById("cPrice").value = c.price;
+      document.getElementById("cLiveLink").value = c.liveLink || "";
+      document.getElementById("cCert").value = c.certificate ? "true" : "false";
+      document.getElementById("cLessons").value = c.lessons.map(l => `${l.title} | ${l.videoUrl}`).join("\n");
+    }
+
+    function clearForm() {
+      document.getElementById("editIndex").value = "-1";
+      document.querySelector("form").reset();
+    }
+
+    function saveCourseForm(e) {
+      e.preventDefault();
+      const idx = parseInt(document.getElementById("editIndex").value);
+      const rawLessons = document.getElementById("cLessons").value.trim().split("\n");
+      const lessons = rawLessons.map(line => {
+        const parts = line.split("|");
+        return {
+          title: (parts || "ক্লাস").trim(),
+          duration: "20:00",
+          videoUrl: (parts || "https://www.youtube.com/embed/dQw4w9WgXcQ").trim()
+        };
+      });
+
+      const updatedCourse = {
+        id: idx >= 0 ? siteData.courses[idx].id : "course-" + Date.now(),
+        title: document.getElementById("cTitle").value.trim(),
+        department: document.getElementById("cDept").value.trim(),
+        instructor: document.getElementById("cInstructor").value.trim(),
+        type: document.getElementById("cType").value,
+        price: parseInt(document.getElementById("cPrice").value) || 0,
+        liveLink: document.getElementById("cLiveLink").value.trim(),
+        certificate: document.getElementById("cCert").value === "true",
+        thumbnail: "📘",
+        lessons: lessons,
+        mcq: idx >= 0 ? (siteData.courses[idx].mcq || []) : []
+      };
+
+      if (idx >= 0) {
+        siteData.courses[idx] = updatedCourse;
+      } else {
+        siteData.courses.push(updatedCourse);
+      }
+
+      saveSiteData(siteData);
+      renderAdminList();
+      clearForm();
+      alert("কোর্স তথ্য সফলভাবে আপডেট হয়েছে!");
+    }
+
+    function deleteCourse(idx) {
+      if (confirm("আপনি কি নিশ্চিতভাবে এই কোর্সটি মুছে ফেলতে চান?")) {
+        siteData.courses.splice(idx, 1);
+        saveSiteData(siteData);
+        renderAdminList();
+      }
+    }
+
+    function resetAllData() {
+      if (confirm("সব পরিবর্তন মুছে ডিফল্ট ডাটায় ফিরে যেতে চান?")) {
+        localStorage.removeItem("plp_site_data");
+        siteData = getSiteData();
+        renderAdminList();
+      }
+    }
+
+    renderAdminList();
+  </script>
+</body>
+</html>

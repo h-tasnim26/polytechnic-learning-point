@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ক্লাস প্লেয়ার ও MCQ টাস্ক</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="index.html" class="brand">
+      <div class="brand-logo">PLP</div>
+      <span>পলিটেকনিক লার্নিং Point</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">← হোমপেজে ফিরে যান</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="lesson-grid">
+      <!-- Video Player + Task (MCQ) + Certificate -->
+      <div>
+        <div class="card-box">
+          <div class="video-frame-wrap">
+            <iframe id="ytPlayer" allowfullscreen></iframe>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-top:16px;">
+            <div>
+              <h2 id="activeLessonTitle"></h2>
+              <p id="activeCourseMeta" style="color:#64748b; font-size:0.9rem;"></p>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <a id="liveClassBtn" href="#" target="_blank" class="btn btn-gold">🔴 লাইভ ক্লাসে যোগ দিন</a>
+              <button class="btn btn-success" onclick="markLessonWatched()">✓ দেখা সম্পন্ন হয়েছে</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Short MCQ Exam Task -->
+        <div class="card-box">
+          <h3 style="margin-bottom:10px;">📝 টাস্ক: শর্ট MCQ পরীক্ষা</h3>
+          <p style="font-size:0.85rem; color:#64748b; margin-bottom:14px;">কোর্সের মূল্যায়ন ও সার্টিফিকেট আনলক করতে নিচের কুইজটি সম্পন্ন করুন:</p>
+          <div id="mcqContainer"></div>
+          <button class="btn btn-primary" style="margin-top:12px;" onclick="submitMcqExam()">উত্তর জমা দিন</button>
+          <p id="mcqResult" style="margin-top:10px; font-weight:700;"></p>
+        </div>
+
+        <!-- Certificate Section -->
+        <div class="card-box hidden" id="certificateSection">
+          <h3>🏅 কোর্স কমপ্লিশন সার্টিফিকেট</h3>
+          <div class="cert-box" id="certArea">
+            <h2 style="color:#023e8a; margin-bottom:6px;">পলিটেকনিক লার্নিং Point</h2>
+            <p style="font-size:0.9rem; color:#475569;">CERTIFICATE OF COMPLETION</p>
+            <hr style="margin:14px auto; width:60%;">
+            <p>এই মর্মে প্রত্যয়ন করা যাচ্ছে যে,</p>
+            <h1 id="certStudentName" style="color:#b45309; margin:10px 0;">শিক্ষার্থীর নাম</h1>
+            <p>সফলভাবে <strong id="certCourseTitle"></strong> কোর্স ও MCQ মূল্যায়ন সম্পন্ন করেছেন।</p>
+          </div>
+          <button class="btn btn-dark" style="margin-top:12px;" onclick="window.print()">🖨️ সার্টিফিকেট প্রিন্ট / PDF সেভ করুন</button>
+        </div>
+      </div>
+
+      <!-- Playlist & Course Progress Circle -->
+      <div>
+        <div class="card-box" style="display:flex; align-items:center; gap:16px;">
+          <div class="circle-wrap" id="courseCircle">
+            <div class="circle-inner">
+              <span id="coursePct">0%</span>
+            </div>
+          </div>
+          <div>
+            <h4>কোর্স প্রোগ্রেস</h4>
+            <p id="courseProgressText" style="font-size:0.85rem; color:#64748b;">০ / ০ ভিডিও দেখা হয়েছে</p>
+          </div>
+        </div>
+
+        <div class="card-box">
+          <h3 style="margin-bottom:12px;">🎬 ক্লাস প্লেলিস্ট</h3>
+          <div id="lessonPlaylist"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    const siteData = getSiteData();
+    const params = new URLSearchParams(window.location.search);
+    const courseId = params.get("course");
+    const course = siteData.courses.find(c => c.id === courseId) || siteData.courses;
+    let currentIdx = 0;
+
+    function getWatched() {
+      return JSON.parse(localStorage.getItem("plp_watched_" + course.id) || "[]");
+    }
+
+    function renderLessonView() {
+      const lesson = course.lessons[currentIdx];
+      document.getElementById("ytPlayer").src = lesson.videoUrl;
+      document.getElementById("activeLessonTitle").textContent = lesson.title;
+      document.getElementById("activeCourseMeta").textContent = `${course.title} • ইন্সট্রাক্টর: ${course.instructor}`;
+      document.getElementById("liveClassBtn").href = course.liveLink || "#";
+
+      const watched = getWatched();
+      const listEl = document.getElementById("lessonPlaylist");
+      listEl.innerHTML = "";
+
+      course.lessons.forEach((item, idx) => {
+        const isDone = watched.includes(idx);
+        listEl.innerHTML += `
+          <div class="lesson-row ${idx === currentIdx ? 'active' : ''} ${isDone ? 'watched' : ''}" onclick="switchVideo(${idx})">
+            <span>${isDone ? '✅ ' : '▶ '}${item.title}</span>
+            <small>${item.duration}</small>
+          </div>
+        `;
+      });
+
+      const pct = Math.round((watched.length / course.lessons.length) * 100);
+      document.getElementById("courseCircle").style.setProperty("--deg", Math.round((pct / 100) * 360) + "deg");
+      document.getElementById("coursePct").textContent = pct + "%";
+      document.getElementById("courseProgressText").textContent = `${watched.length} / ${course.lessons.length} ভিডিও দেখা হয়েছে`;
+
+      if (course.certificate && watched.length === course.lessons.length) {
+        const auth = JSON.parse(localStorage.getItem("plp_auth") || "null");
+        document.getElementById("certStudentName").textContent = auth ? auth.name : "সম্মানিত শিক্ষার্থী";
+        document.getElementById("certCourseTitle").textContent = course.title;
+        document.getElementById("certificateSection").classList.remove("hidden");
+      }
+    }
+
+    function switchVideo(idx) {
+      currentIdx = idx;
+      renderLessonView();
+    }
+
+    function markLessonWatched() {
+      const watched = getWatched();
+      if (!watched.includes(currentIdx)) {
+        watched.push(currentIdx);
+        localStorage.setItem("plp_watched_" + course.id, JSON.stringify(watched));
+      }
+      if (currentIdx + 1 < course.lessons.length) {
+        currentIdx++;
+      }
+      renderLessonView();
+    }
+
+    function renderMcq() {
+      const box = document.getElementById("mcqContainer");
+      const questions = course.mcq || [];
+      if (questions.length === 0) {
+        box.innerHTML = "<p>এই কোর্সের জন্য এখনো কোনো MCQ যোগ করা হয়নি।</p>";
+        return;
+      }
+      box.innerHTML = "";
+      questions.forEach((qItem, qIdx) => {
+        let optsHTML = "";
+        qItem.options.forEach((opt, oIdx) => {
+          optsHTML += `
+            <label class="mcq-option">
+              <input type="radio" name="q_${qIdx}" value="${oIdx}"> ${opt}
+            </label>
+          `;
+        });
+        box.innerHTML += `<div style="margin-bottom:14px;"><strong>${qIdx + 1}. ${qItem.q}</strong>${optsHTML}</div>`;
+      });
+    }
+
+    function submitMcqExam() {
+      const questions = course.mcq || [];
+      let score = 0;
+      questions.forEach((qItem, qIdx) => {
+        const chosen = document.querySelector(`input[name="q_${qIdx}"]:checked`);
+        if (chosen && parseInt(chosen.value) === qItem.answer) {
+          score++;
+        }
+      });
+      document.getElementById("mcqResult").textContent = `আপনার স্কোর: ${score} / ${questions.length}`;
+      const doneList = JSON.parse(localStorage.getItem("plp_quiz_completed") || "[]");
+      if (!doneList.includes(course.id)) {
+        doneList.push(course.id);
+        localStorage.setItem("plp_quiz_completed", JSON.stringify(doneList));
+      }
+    }
+
+    renderLessonView();
+    renderMcq();
+  </script>
+</body>
+</html>

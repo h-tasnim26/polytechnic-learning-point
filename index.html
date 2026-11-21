@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>পলিটেকনিক লার্নিং পয়েন্ট</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+    body { background: #f2f9f5; color: #0f291e; scroll-behavior: smooth; }
+
+    /* Navbar */
+    .navbar {
+      background: #062c1e; color: #fff; padding: 12px 6%;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: #fff; }
+    .brand img { height: 44px; width: 44px; object-fit: contain; background: #fff; border-radius: 50%; padding: 2px; }
+    .brand-title { font-size: 1.15rem; font-weight: 700; line-height: 1.2; }
+    .brand-sub { font-size: 0.78rem; color: #a7f3d0; }
+
+    .nav-links { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+    .nav-links a, .nav-btn {
+      color: #e2e8f0; text-decoration: none; font-weight: 600; font-size: 0.95rem;
+      background: none; border: none; cursor: pointer;
+    }
+    .nav-links a:hover, .nav-btn:hover { color: #6ee7b7; }
+    .sub-nav-btn { background: #facc15; color: #062c1e !important; padding: 7px 15px; border-radius: 20px; font-weight: 700 !important; }
+    .auth-nav-btn { background: #10b981; color: #fff !important; padding: 7px 16px; border-radius: 20px; font-weight: 700 !important; }
+
+    /* Hero (Green Theme) */
+    .hero {
+      background: linear-gradient(125deg, #065f46 0%, #059669 55%, #10b981 100%);
+      color: #fff; padding: 65px 6%; display: flex; flex-wrap: wrap;
+      align-items: center; justify-content: space-between; gap: 35px;
+    }
+    .hero-text { max-width: 580px; }
+    .hero-badge {
+      display: inline-block; background: rgba(255, 255, 255, 0.16);
+      padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-bottom: 16px;
+    }
+    .hero-text h1 { font-size: 2.8rem; line-height: 1.22; margin-bottom: 16px; font-weight: 800; }
+    .hero-text p { font-size: 1.05rem; color: #ecfdf5; line-height: 1.65; margin-bottom: 28px; }
+    .btn-group { display: flex; flex-wrap: wrap; gap: 14px; }
+    .btn-dark { background: #062c1e; color: #fff; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 700; }
+    .btn-lime { background: #d9f99d; color: #062c1e; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 700; }
+    .btn-gold { background: #facc15; color: #062c1e; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 700; }
+
+    /* Floating Cards */
+    .hero-cards { display: flex; gap: 16px; align-items: center; }
+    .f-card {
+      background: #fff; color: #0f291e; width: 125px; height: 155px; border-radius: 16px;
+      padding: 16px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; box-shadow: 0 14px 28px rgba(0,0,0,0.14);
+    }
+    .f-card:nth-child(2) { transform: translateY(-16px); }
+    .f-card .icon { font-size: 2rem; margin-bottom: 8px; }
+    .f-card strong { font-size: 1rem; margin-bottom: 4px; }
+    .f-card small { font-size: 0.72rem; color: #64748b; }
+
+    /* Courses */
+    .container { padding: 48px 6%; max-width: 1220px; margin: auto; }
+    .section-title { font-size: 1.75rem; margin-bottom: 22px; color: #062c1e; font-weight: 800; }
+    .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 24px; }
+    .course-card {
+      background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .course-thumb { background: linear-gradient(135deg, #059669, #10b981); color: #fff; font-size: 3rem; padding: 28px; text-align: center; }
+    .course-body { padding: 20px; }
+    .course-meta { font-size: 0.88rem; color: #475569; margin: 8px 0 16px; }
+    .watch-btn {
+      display: block; text-align: center; background: #059669; color: #fff; padding: 11px;
+      border-radius: 8px; text-decoration: none; font-weight: 700; border: none; width: 100%; cursor: pointer;
+    }
+    .price-badge { background: #fef3c7; color: #b45309; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; }
+
+    /* Learning Activity (Below Courses) */
+    .activity-wrapper {
+      background: #fff; border-radius: 18px; padding: 28px 32px;
+      box-shadow: 0 8px 24px rgba(6, 95, 70, 0.09); border: 1px solid #d1fae5;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 28px;
+    }
+    .activity-left { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+    .circle-range {
+      width: 120px; height: 120px; border-radius: 50%;
+      background: conic-gradient(#059669 var(--deg, 0deg), #e2e8f0 0deg);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .circle-inner {
+      width: 92px; height: 92px; background: #fff; border-radius: 50%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .circle-inner strong { font-size: 1.4rem; color: #065f46; }
+    .circle-inner span { font-size: 0.78rem; color: #64748b; font-weight: 600; }
+    .activity-stats h3 { font-size: 1.35rem; color: #062c1e; margin-bottom: 8px; }
+    .activity-stats p { font-size: 0.98rem; color: #334155; margin-bottom: 4px; }
+    .activity-stats .sub-count { color: #059669; font-weight: 700; margin-top: 4px; }
+
+    /* Payment Drawer & Modals */
+    .overlay-bg {
+      display: none; position: fixed; inset: 0; background: rgba(6, 44, 30, 0.65);
+      z-index: 999; backdrop-filter: blur(3px);
+    }
+    .overlay-bg.active { display: flex; }
+    .payment-overlay { justify-content: flex-end; }
+    .modal-overlay { justify-content: center; align-items: center; padding: 16px; }
+    .payment-drawer { background: #fff; width: 100%; max-width: 430px; height: 100%; padding: 28px 24px; overflow-y: auto; border-top: 5px solid #059669; }
+    .auth-modal { background: #fff; width: 100%; max-width: 400px; border-radius: 16px; padding: 26px; border-top: 5px solid #059669; }
+    .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .close-btn { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold; }
+    .pay-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0 16px; }
+    .pay-method-btn { padding: 10px; border: 2px solid #e2e8f0; border-radius: 10px; background: #fff; font-weight: 700; cursor: pointer; }
+    .pay-method-btn.active[data-method="bKash"] { border-color: #e2136e; color: #e2136e; background: #fdf2f8; }
+    .pay-method-btn.active[data-method="Nagad"] { border-color: #f6921e; color: #ea580c; background: #fff7ed; }
+    .pay-method-btn.active[data-method="Rocket"] { border-color: #8c3494; color: #8c3494; background: #faf5ff; }
+    .merchant-box { border: 1.5px dashed #cbd5e1; background: #f8fafc; padding: 12px; border-radius: 10px; font-weight: 700; text-align: center; margin-bottom: 16px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.92rem; }
+    .form-group input, .form-group select { width: 100%; padding: 11px; border: 1px solid #cbd5e1; border-radius: 8px; }
+    .tab-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; background: #f1f5f9; padding: 4px; border-radius: 10px; }
+    .tab-btn { padding: 8px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; background: transparent; }
+    .tab-btn.active { background: #059669; color: #fff; }
+    .notice-card { background: #fff; border-left: 5px solid #059669; padding: 16px 20px; border-radius: 10px; margin-bottom: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="index.html" class="brand">
+      <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
+      <div>
+        <div class="brand-title">পলিটেকনিক লার্নিং পয়েন্ট</div>
+        <div class="brand-sub">Polytechnic Learning Point</div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">হোম</a>
+      <a href="#free-courses">কোর্সসমূহ</a>
+      <a href="#paid-courses" class="sub-nav-btn">⭐ সাবস্ক্রিপশন</a>
+      <a href="#notice-section">নোটিশ</a>
+      <button id="authNavBtn" class="auth-nav-btn" onclick="openAuthModal()">Signup / Log In</button>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-text">
+      <div class="hero-badge">POLYTECHNIC LEARNING POINT • LEARNING HUB</div>
+      <h1>জ্ঞান থেকে দক্ষতা, দক্ষতা থেকে সাফল্য</h1>
+      <p>পলিটেকনিক শিক্ষার্থীদের জন্য দক্ষতা অর্জনের আধুনিক প্ল্যাটফর্ম। আপনার ডিপার্টমেন্ট ও পছন্দের কোর্সগুলো আবিষ্কার করুন।</p>
+      <div class="btn-group">
+        <a href="#free-courses" class="btn-dark">কোর্স দেখুন</a>
+        <a href="#free-courses" class="btn-lime">ক্লাস শুরু করুন ↗</a>
+        <a href="#paid-courses" class="btn-gold">⭐ সাবস্ক্রিপশন</a>
+      </div>
+    </div>
+    <div class="hero-cards">
+      <div class="f-card"><span class="icon">📘</span><strong>Learn</strong><small>Practice & Progress</small></div>
+      <div class="f-card"><span class="icon">⚙️</span><strong>Skills</strong><small>Build Your Future</small></div>
+      <div class="f-card"><span class="icon">🧭</span><strong>Explore</strong><small>Tech Courses</small></div>
+    </div>
+  </header>
+
+  <section class="container" id="free-courses">
+    <h2 class="section-title">📚 ফ্রি কোর্সসমূহ </h2>
+    <div class="course-grid" id="freeCourseGrid"></div>
+  </section>
+
